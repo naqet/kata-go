@@ -1,6 +1,7 @@
 package linkedlist_test
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -45,6 +46,88 @@ func (l *LinkedList[T]) append(val T) {
 	l.tail.next = node
 	l.tail = node
     l.length++
+}
+
+func (l *LinkedList[T]) getAt(idx int) (T, error) {
+    if idx >= l.length || l.length == 0 {
+        var zeroVal T;
+        return zeroVal, errors.New("Idx greater than length");
+    }
+
+    curr := l.head;
+
+    for i := 1; i <= idx; i++ {
+        curr = curr.next;
+    }
+
+
+    return curr.value, nil;
+}
+
+func (l *LinkedList[T]) insertAt(val T, idx int) error {
+    if idx > l.length {
+        return errors.New("Idx greater than length");
+    } else if idx == l.length {
+        l.append(val)
+    } else if idx == 0 {
+        l.prepend(val)
+    }
+
+    node := Node[T]{value: val};
+
+    curr := l.head;
+    for i := 1; i <= idx; i++ {
+        curr = curr.next;
+    }
+
+    if curr.prev != nil {
+        curr.prev.next = &node;
+        node.prev = curr.prev
+    }
+    curr.prev = &node;
+    node.next = curr;
+
+    return nil
+}
+
+func TestInserAt(t *testing.T) {
+	l := LinkedList[int]{}
+	l.append(1)
+	l.append(2)
+	l.append(4)
+
+    err := l.insertAt(3, 2)
+
+    if err != nil {
+        t.Error();
+        return
+    }
+
+    val, err := l.getAt(2)
+
+    if err != nil || val != 3 {
+        t.Error();
+        return
+    }
+}
+
+func TestGetAt(t *testing.T) {
+	l := LinkedList[int]{}
+	l.append(1)
+	l.append(2)
+	l.append(3)
+
+    val, err := l.getAt(0)
+
+	if err != nil || val != 1 {
+		return
+	}
+
+    val, err = l.getAt(2)
+
+	if err != nil || val != 3 {
+		return
+	}
 }
 
 func TestPrepend(t *testing.T) {
