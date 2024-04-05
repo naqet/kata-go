@@ -1,6 +1,9 @@
-package binarysearchtree_test;
+package binarysearchtree_test
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 type Node[T any] struct {
 	value T
@@ -44,4 +47,53 @@ func TestFind(t *testing.T) {
         t.Error();
         return;
     }
+}
+
+func insert[T int](tree *Node[T], val T) {
+    if tree == nil {
+        return 
+    }
+
+    if val <= tree.value && tree.left != nil  {
+        insert(tree.left, val);
+        return;
+    }
+    if val > tree.value && tree.right != nil {
+        insert(tree.right, val);
+        return;
+    }
+
+    if tree.left == nil && tree.right == nil {
+        node := &Node[T]{value: val}
+        if val <= tree.value {
+            tree.left = node;
+        } else {
+            tree.right = node;
+        }
+    }
+}
+
+func TestInsert(t *testing.T) {
+    tree := Node[int]{value: 10, left: &Node[int]{value: 5}, right: &Node[int]{value: 14}}
+    expected := Node[int]{value: 10, left: &Node[int]{value: 5, right: &Node[int]{value:8}}, right: &Node[int]{value: 14}}
+
+    insert(&tree, 8);
+
+    if !reflect.DeepEqual(tree, expected) {
+        t.Error()
+        return;
+    }
+
+    tree = Node[int]{value: 10, left: &Node[int]{value: 5}, right: &Node[int]{value: 14}}
+    expected = Node[int]{value: 10, left: &Node[int]{value: 5, right: &Node[int]{value:8, right: &Node[int]{value: 9}}}, right: &Node[int]{value: 14, left: &Node[int]{value:12}}}
+
+    insert(&tree, 8);
+    insert(&tree, 9);
+    insert(&tree, 12);
+
+    if !reflect.DeepEqual(tree, expected) {
+        t.Error()
+        return;
+    }
+
 }
